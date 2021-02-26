@@ -1,5 +1,4 @@
 import React from 'react';
-// import ReactDOM from 'react-dom';
 
 import './GameField.css';
 
@@ -24,16 +23,16 @@ export default class GameField extends React.Component {
             snake: [],
             snakeSpeed: 300,        // Интервал между перемещениями змейки
             foodTimer: 5000,        // Таймер для еды
-            obstacleTimer: 7000,
-            noObstacleTimer: 8000,
+            obstacleInt: 7000,
+            noObstacleInt: 8000,
 
             direction: 'x+',
 
-            gameIsRunning: false,  // Запущена ли игра
-            snakeTimer: null,           // Таймер змейки
+            gameIsRunning: false,   // Запущена ли игра
+            snakeTimer: null,       // Таймер змейки
             obstacleTimer: null,
             noObstacleTimer: null,
-            score: 0,              // Результат
+            score: 0,               // Результат
             obstacles: false,
             obstaclesDisap: false,
             noWalls: true
@@ -46,26 +45,25 @@ export default class GameField extends React.Component {
     }
 
     changeDirection = (e) => {
-        // console.log(e);
         let {direction} = this.state;
     
         switch (e.code) {
-            case 'ArrowLeft': // Клавиша влево
+            case 'ArrowLeft': 
                 if (direction !== 'x+') {
                     direction = 'x-'
                 }
                 break;
-            case 'ArrowUp': // Клавиша вверх
+            case 'ArrowUp': 
                 if (direction !== 'y-') {
                     direction = 'y+'
                 }
                 break;
-            case 'ArrowRight': // Клавиша вправо
+            case 'ArrowRight':
                 if (direction !== 'x-') {
                     direction = 'x+'
                 }
                 break;
-            case 'ArrowDown': // Клавиша вниз
+            case 'ArrowDown': 
                 if (direction !== 'y+') {
                     direction = 'y-'
                 }
@@ -97,13 +95,6 @@ export default class GameField extends React.Component {
     }
 
     snakeDraw =() => {
-        // this.state.fieldXxY.map((val, i) => {
-        //     val = 1 ? 0 : val
-        // });
-
-        // this.state.fieldXxY.map((val, i) => {
-        //     val = 1 ? 0 : val
-        // });
         let arr = this.state.fieldXxY.map((item) => {
             const i = item;
             return (
@@ -114,7 +105,6 @@ export default class GameField extends React.Component {
                 })
             )
         })
-        // console.log(arr)
 
         arr = arr.map((item, index) => {
             return (
@@ -127,159 +117,137 @@ export default class GameField extends React.Component {
         })
 
         this.setState({fieldXxY: arr});
-        // console.log(this.state.fieldXxY);
     }
 
     startGame = () => {
         this.setState({gameIsRunning: true});
-        // // respawn();//создали змейку
 
         this.setState({snakeTimer: setInterval(this.move, this.state.snakeSpeed)});//каждые 200мс запускаем функцию move
         setTimeout(this.createFood, this.state.foodTimer);
-        // if (obstacles) {
-        //     obstacle_timer = setInterval(createObstacle, obstacleTimer);
-        // }
+        if (this.state.obstacles) {
+            this.setState({obstacleTimer: setInterval(this.createObstacle, this.state.obstacleInt)});
+        }
         // if (obstaclesDisap) {
         //     no_obstacle_timer = setInterval(deleteObstacle, noObstacleTimer);
         // }
         // setTimeout(createFood, foodTimer);
     }
 
-    // handleKeyPress = (event) => {
-    //     if(event.key === 'Enter'){
-    //       console.log('enter press here! ')
-    //     }
-    // }
+    createObstacle = () => {
+
+    }
 
     createFood = () => {
 
         let arr = this.state.fieldXxY;
-
-        // let i = 0, j = 0;
     
-        while (1) { //пока еду не создали
-    //         // рандом
+        while (1) { 
             var food_x = Math.floor(Math.random() * this.state.fieldX);
             var food_y = Math.floor(Math.random() * this.state.fieldY);
     
-    //         var food_cell = document.getElementsByClassName('cell-' + food_y + '-' + food_x)[0];
-    //         var food_cell_classes = food_cell.getAttribute('class').split(' ');
-    
-    //         // проверка на змейку
             if (arr[food_y][food_x] === 0) {
                 arr[food_y][food_x] = 2;
                 break;
             }
-            // arr[food_y][food_x] = arr[food_y][food_x] === 0 ? 2 : arr[food_y][food_x];
-    //         if (!food_cell_classes.includes('snake-unit') &&
-    //             !food_cell_classes.includes('obstacle-unit')) {
-    //             var classes = '';
-    //             for (var i = 0; i < food_cell_classes.length; i++) {
-    //                 classes += food_cell_classes[i] + ' ';
-    //             }
-    // console.log(food_x, food_y, arr[food_y][food_x])
-    // console.log(arr.includes(2))
-    //             food_cell.setAttribute('class', classes + newUnitClass);
-    //             foodCreated = true;
-    //         }
         }
         this.setState({fieldXxY: arr});
     }
 
     fieldNumber = (coord) => {
         let [y, x] = [...coord.split('-')];
-        // let n = this.state.fieldXxY[y][x];
-        // console.log(this.state.fieldXxY[y][x])
         return (this.state.fieldXxY[+y][+x]);
 
     }
 
     move = () => {
         let {direction, snake, noWalls} = this.state;
-        
-        // Сборка классов
-        // var snake_head_classes = snake[snake.length - 1].getAttribute('class').split(' ');
-    
-        // Сдвиг головы
-        // var new_unit;
-        // var snake_coords = snake_head_classes[1].split('-');//преобразовали строку в массив
-        // var coord_y = parseInt(snake_coords[1]);
-        // var coord_x = parseInt(snake_coords[2]);
+
         let head = snake[snake.length - 1].split('-');
         let headNew = '';
+        let newx = head[1];
+        let newy = head[0];
 
         switch (direction) {
             case 'x-':
-                headNew = `${head[0]}-${parseInt(head[1]) - 1}`;
+                // headNew = `${head[0]}-${parseInt(head[1]) - 1}`;
+                newx = parseInt(head[1]) - 1;
                 break;
             case 'x+':
-                headNew = `${head[0]}-${parseInt(head[1]) + 1}`;
+                // headNew = `${head[0]}-${parseInt(head[1]) + 1}`;
+                newx = parseInt(head[1]) + 1;
                 break;
             case 'y+':
-                headNew = `${parseInt(head[0]) - 1}-${head[1]}`;
+                // headNew = `${parseInt(head[0]) - 1}-${head[1]}`;
+                newy = parseInt(head[0]) - 1;
                 break;
             case 'y-':
-                headNew = `${parseInt(head[0]) + 1}-${head[1]}`;
+                // headNew = `${parseInt(head[0]) + 1}-${head[1]}`;
+                newy = parseInt(head[0]) + 1;
                 break;
         }
-// console.log(headNew);
-        // snake itsalf
+        
+        // wall
+        if (newx > (this.state.fieldX - 1) || 
+            newx < 0 ||
+            newy > (this.state.fieldY - 1) || 
+            newy < 0) {
+
+                if (noWalls) {
+                    if (newx > this.state.fieldX - 1) {newx = 0};
+                    if (newx < 0) {newx = this.state.fieldX - 1};
+                    if (newy > this.state.fieldY - 1) {newy = 0};
+                    if (newy < 0) {newy = this.state.fieldY - 1};
+                    
+                } else {
+                    this.finishTheGame();
+                }
+        } 
+
+        headNew = `${newy}-${newx}`;
+
         if (snake.includes(headNew)) {
             this.finishTheGame();
         }
+        let arr = snake;
+        arr.push(headNew);
+        this.setState({snake: arr})
 
-        // Определяем новую точку
-        if (direction === 'x-') {
+        // if (direction === 'x-') {
             
-            if (head[1] === '0' && this.state.noWalls) {
-                snake.push(`${head[0]}-19`);
-            } else {
-                snake.push(`${head[0]}-${parseInt(head[1]) - 1}`);
-            }
-        //     coord_x = (noWalls && coord_x == 0) ? 20 : coord_x;
-        //     new_unit = document.getElementsByClassName('cell-' + (coord_y) + '-' + (coord_x - 1))[0];
-        }
-        else if (direction === 'x+') {
-            
-            if (head[1] === '19' && this.state.noWalls) {
-                snake.push(`${head[0]}-0`);
-            }
-            else {
-                snake.push(`${head[0]}-${parseInt(head[1]) + 1}`);
-            }
-        //     coord_x = (noWalls && coord_x == 19) ? -1 : coord_x;
-        //     new_unit = document.getElementsByClassName('cell-' + (coord_y) + '-' + (coord_x + 1))[0];
-
-        }
-        else if (direction === 'y+') {
-            
-            if (head[0] === '0' && this.state.noWalls) {
-                snake.push(`19-${head[1]}`);
-            }
-            else {
-                snake.push(`${parseInt(head[0]) - 1}-${head[1]}`);
-            }
-        //     coord_y = (noWalls && coord_y == 0) ? 20 : coord_y;
-        //     new_unit = document.getElementsByClassName('cell-' + (coord_y - 1) + '-' + (coord_x))[0];
-        }
-        else if (direction === 'y-') {
-            
-            if (head[0] === '19' && this.state.noWalls) {
-                snake.push(`0-${head[1]}`);
-            }
-            else {
-                snake.push(`${parseInt(head[0]) + 1}-${head[1]}`);
-            }
-        //     coord_y = (noWalls && coord_y == 19) ? -1 : coord_y;
-        //     new_unit = document.getElementsByClassName('cell-' + (coord_y + 1) + '-' + (coord_x))[0];
-        }
-        
-        
-
-        // wall
-        // if (!noWalls && ) {
-
+        //     if (head[1] === '0' && this.state.noWalls) {
+        //         snake.push(`${head[0]}-19`);
+        //     } else {
+        //         snake.push(`${head[0]}-${parseInt(head[1]) - 1}`);
+        //     }
         // }
+        // else if (direction === 'x+') {
+            
+        //     if (head[1] === '19' && this.state.noWalls) {
+        //         snake.push(`${head[0]}-0`);
+        //     }
+        //     else {
+        //         snake.push(`${head[0]}-${parseInt(head[1]) + 1}`);
+        //     }
+        // }
+        // else if (direction === 'y+') {
+            
+        //     if (head[0] === '0' && this.state.noWalls) {
+        //         snake.push(`19-${head[1]}`);
+        //     }
+        //     else {
+        //         snake.push(`${parseInt(head[0]) - 1}-${head[1]}`);
+        //     }
+        // }
+        // else if (direction === 'y-') {
+            
+        //     if (head[0] === '19' && this.state.noWalls) {
+        //         snake.push(`0-${head[1]}`);
+        //     }
+        //     else {
+        //         snake.push(`${parseInt(head[0]) + 1}-${head[1]}`);
+        //     }
+        // }
+        
         // obstacle
         if (this.fieldNumber(headNew) === 3) {
             this.finishTheGame();
@@ -292,52 +260,12 @@ export default class GameField extends React.Component {
             this.setState({snake: snake});
             this.snakeDraw();
         }
-
-        // не в себя
-        // не в стену
-        // не в преп-е
-        // в еду
-
-        // Проверки
-        // 1) new_unit не часть змейки
-        // 2) Змейка не ушла за границу поля
-        //console.log(new_unit);
-        // if (!isSnakeUnit(new_unit)
-        //     && new_unit !== undefined
-        //     && !isObstacleUnit(new_unit)) {
-        //     // Добавление новой части змейки
-        //     new_unit.setAttribute('class', new_unit.getAttribute('class') + ' snake-unit');
-        //     snake.push(new_unit);
-    
-        //     // Проверяем, надо ли убрать хвост
-    
-        //     if (!haveFood(new_unit)) {
-        //         // Находим хвост
-        //         var removed = snake.splice(0, 1)[0];
-        //         var classes = removed.getAttribute('class').split(' ');
-    
-        //         // удаляем хвост
-        //         removed.setAttribute('class', classes[0] + ' ' + classes[1]);
-        //     } else {
-    
-        //     }
-        // }
-
-        // else {
-            
-        // }
-        
-        
-
-        // arr.push('13-7');
-
-        // console.log(arr);
     }
 
     finishTheGame = () => {
         this.setState({gameIsRunning: false});
         clearInterval(this.state.snakeTimer);
-        // clearInterval(obstacle_timer);
+        clearInterval(this.state.obstacleTimer);
         alert('Вы проиграли! Ваш результат: ' + this.state.snake.length);
     }
 

@@ -1,7 +1,10 @@
 // import logo from './logo.svg';
 import './App.css';
 
-import GameField from './GameField.jsx'
+import Header from './Header.jsx';
+import GameField from './GameField.jsx';
+// import Interface from './Interface.jsx';
+import Footer from './Footer.jsx';
 
 function App() {
   return (
@@ -20,7 +23,10 @@ function App() {
           Learn React
         </a>
       </header> */}
+      <Header />
       <GameField />
+      {/* <Interface /> */}
+      <Footer />
     </div>
   );
 }

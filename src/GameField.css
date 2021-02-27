@@ -1,3 +1,11 @@
+.game {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1 0 auto;
+}
+
 .game-table {
     border-collapse: collapse;
     /* background-color: #3e3e3e; */
@@ -6,8 +14,10 @@
 
 .snake-field {
     display: inline-block;
-    border: 2px solid red;
+    /* border: 2px solid red; */
     box-sizing: border-box;
+    display: flex;
+    justify-content: center;
 }
 
 td.game-table-cell {
@@ -15,6 +25,12 @@ td.game-table-cell {
     height: 20px;
     /* border: 1px dotted #eee; */
     border: 1px dotted black;
+    box-sizing: border-box;
+    position: relative;
+}
+
+button {
+    width: 200px;
 }
 
 .game-table-cell-status-0 {
@@ -25,15 +41,85 @@ td.game-table-cell {
     background-color: black;
 }
 
-.game-table-cell-status-2:after {
+.game-table-cell-status-2:after,
+.game-table-cell-status-11:after,
+.game-table-cell-status-12:after,
+.game-table-cell-status-13:after,
+.game-table-cell-status-14:after,
+.game-table-cell-status-15:after,
+.game-table-cell-status-16:after,
+.game-table-cell-status-17:after,
+.game-table-cell-status-18:after,
+.game-table-cell-status-19:after {
     /* background-color: green; */
-    content: '\1F354';
+    /* content: '\1F354'; */
+    /* content: attr(css-data); */
+    /* content: var(--css-data); */
     font-size: 14px;
+    position: absolute;
+    left: 2px;
+    top: -3px;
+}
+
+.game-table-cell-status-2:after {
+    content: '\1F354';
+}
+
+.game-table-cell-status-11:after {
+    content: '\1F356';
+}
+
+.game-table-cell-status-12:after {
+    content: '\1F364';
+}
+
+.game-table-cell-status-13:after {
+    content: '\1F366';
+}
+
+.game-table-cell-status-14:after {
+    content: '\1F36D';
+}
+
+.game-table-cell-status-15:after {
+    content: '\1F347';
+}
+
+.game-table-cell-status-16:after {
+    content: '\1F344';
+}
+
+.game-table-cell-status-17:after {
+    content: '\1F346';
+}
+
+.game-table-cell-status-18:after {
+    content: '\1F34E';
+}
+
+.game-table-cell-status-19:after {
+    content: '\1F355';
 }
 
 .game-table-cell-status-3:after{
     /* content: 'X';
     background-color: red; */
     content: '\1F4A3';
+    /* content: attr(css-data); */
     font-size: 14px;
+    position: absolute;
+    left: 2px;
+    top: -3px;
+}
+
+.game-table-cell-status-4 {
+    background-color: red;
+}
+
+.game-table-cell-status-5:after {
+    content: '\271E';
+    font-size: 16px;
+    position: absolute;
+    left: 5px;
+    top: 0px;
 }

@@ -21,10 +21,11 @@ export default class GameField extends React.Component {
             fieldY: 20,
             fieldXxY: [],
             snake: [],
+            obstaclesArr: [],
             snakeSpeed: 300,        // Интервал между перемещениями змейки
             foodTimer: 5000,        // Таймер для еды
             obstacleInt: 7000,
-            noObstacleInt: 8000,
+            noObstacleInt: 11000,
 
             direction: 'x+',
 
@@ -33,8 +34,8 @@ export default class GameField extends React.Component {
             obstacleTimer: null,
             noObstacleTimer: null,
             score: 0,               // Результат
-            obstacles: false,
-            obstaclesDisap: false,
+            obstacles: true,
+            obstaclesDisap: true,
             noWalls: true
         };
     }
@@ -122,22 +123,68 @@ export default class GameField extends React.Component {
     startGame = () => {
         this.setState({gameIsRunning: true});
 
-        this.setState({snakeTimer: setInterval(this.move, this.state.snakeSpeed)});//каждые 200мс запускаем функцию move
+        this.setState({snakeTimer: setInterval(this.move, this.state.snakeSpeed)});
         setTimeout(this.createFood, this.state.foodTimer);
         if (this.state.obstacles) {
             this.setState({obstacleTimer: setInterval(this.createObstacle, this.state.obstacleInt)});
         }
-        // if (obstaclesDisap) {
-        //     no_obstacle_timer = setInterval(deleteObstacle, noObstacleTimer);
-        // }
-        // setTimeout(createFood, foodTimer);
-    }
-
-    createObstacle = () => {
+        if (this.state.obstaclesDisap) {
+            this.setState({noObstacleTimer: setInterval(this.deleteObstacle, this.state.noObstacleInt)});
+        }
 
     }
 
     createFood = () => {
+        this.createFoodOrObstacle(2);
+    }
+
+    createObstacle = () => {
+        this.createFoodOrObstacle(3);
+    }
+
+    deleteObstacle = () => {
+        let {obstaclesArr, fieldXxY} = this.state;
+        // let obstaclesArr = [];
+        // let i = -1;
+        // while ((i = ))
+        
+        // let arr = this.state.obstaclesArr;
+        let i = Math.floor(Math.random() * obstaclesArr.length);
+        // arr.splice(i, 1);
+
+
+
+        fieldXxY[obstaclesArr[i].split('-')[0]][obstaclesArr[i].split('-')[1]] = 0;
+        obstaclesArr.splice(i, 1);
+
+
+        this.setState({obstaclesArr: obstaclesArr});
+        this.setState({fieldXxY: fieldXxY});
+
+        
+
+        // while (1) { 
+        //     var food_x = Math.floor(Math.random() * this.state.fieldX);
+        //     var food_y = Math.floor(Math.random() * this.state.fieldY);
+    
+        //     if (arr[food_y][food_x] === 0) {
+        //         arr[food_y][food_x] = item;
+        //         break;
+        //     }
+        // }
+
+        // arr = arr.map((item, index) => {
+        //     return (
+        //         item.map((subitem, i) => {
+        //             return (
+        //                 this.state.snake.includes(`${index.toString()}-${i.toString()}`) ? 1 : subitem
+        //             )
+        //         })
+        //     )
+        // })
+    }
+
+    createFoodOrObstacle = (item) => {
 
         let arr = this.state.fieldXxY;
     
@@ -146,10 +193,15 @@ export default class GameField extends React.Component {
             var food_y = Math.floor(Math.random() * this.state.fieldY);
     
             if (arr[food_y][food_x] === 0) {
-                arr[food_y][food_x] = 2;
+                arr[food_y][food_x] = item;
                 break;
             }
         }
+
+        if (item === 3) {
+            this.setState({obstaclesArr: [...this.state.obstaclesArr, `${food_y}-${food_x}`]});
+        }
+
         this.setState({fieldXxY: arr});
     }
 
@@ -211,42 +263,6 @@ export default class GameField extends React.Component {
         let arr = snake;
         arr.push(headNew);
         this.setState({snake: arr})
-
-        // if (direction === 'x-') {
-            
-        //     if (head[1] === '0' && this.state.noWalls) {
-        //         snake.push(`${head[0]}-19`);
-        //     } else {
-        //         snake.push(`${head[0]}-${parseInt(head[1]) - 1}`);
-        //     }
-        // }
-        // else if (direction === 'x+') {
-            
-        //     if (head[1] === '19' && this.state.noWalls) {
-        //         snake.push(`${head[0]}-0`);
-        //     }
-        //     else {
-        //         snake.push(`${head[0]}-${parseInt(head[1]) + 1}`);
-        //     }
-        // }
-        // else if (direction === 'y+') {
-            
-        //     if (head[0] === '0' && this.state.noWalls) {
-        //         snake.push(`19-${head[1]}`);
-        //     }
-        //     else {
-        //         snake.push(`${parseInt(head[0]) - 1}-${head[1]}`);
-        //     }
-        // }
-        // else if (direction === 'y-') {
-            
-        //     if (head[0] === '19' && this.state.noWalls) {
-        //         snake.push(`0-${head[1]}`);
-        //     }
-        //     else {
-        //         snake.push(`${parseInt(head[0]) + 1}-${head[1]}`);
-        //     }
-        // }
         
         // obstacle
         if (this.fieldNumber(headNew) === 3) {
@@ -254,7 +270,7 @@ export default class GameField extends React.Component {
         }
         // food
         if (this.fieldNumber(headNew) === 2) {
-            this.createFood();
+            this.createFood(2);
         } else {
             snake.splice(0, 1);
             this.setState({snake: snake});

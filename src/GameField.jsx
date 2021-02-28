@@ -2,6 +2,17 @@ import React from 'react';
 
 import './GameField.css';
 
+import Button from 'react-bootstrap/Button';
+import ButtonGroup from 'react-bootstrap/ButtonGroup';
+import ToggleButton from 'react-bootstrap/ToggleButton';
+import Collapse from 'react-bootstrap/Collapse';
+
+// import useSound from 'use-sound';
+// import explosion from './explosion.mp3';
+
+
+// import Form from 'react-bootstrap/Form';
+
 export default class GameField extends React.Component {
     constructor() {
         super();
@@ -39,13 +50,26 @@ export default class GameField extends React.Component {
             score: 0,
             obstacles: true,
             obstaclesDisap: true,
-            noWalls: true
+            noWalls: true,
+
+            radioValue: '10x10',
+            settingsOpen: false,
+
+            audioExp: null,
+            audioBut: null,
+            audioEat: null,
+            audioPunch: null
         };
     }
 
     componentDidMount() {
         this.gameTableInit();
         document.addEventListener('keydown', this.changeDirection);
+        
+        this.setState({audioExp: document.getElementsByClassName("audio-element")[0]});
+        this.setState({audioBut: document.getElementsByClassName("audio-button")[0]});
+        this.setState({audioEat: document.getElementsByClassName("audio-eat")[0]});
+        this.setState({audioPunch: document.getElementsByClassName("audio-punch")[0]});
     }
 
     changeDirection = (e) => {
@@ -121,6 +145,8 @@ export default class GameField extends React.Component {
     }
 
     startGame = () => {
+        this.state.audioBut.play()
+        this.finishTheGame();
         this.gameTableInit();
         this.setState({score: 0});
         this.setState({hiScore: this.state.hiScore < this.state.score ? this.state.score : this.state.hiScore})
@@ -207,11 +233,13 @@ export default class GameField extends React.Component {
                     if (newy > this.state.fieldY - 1) {newy = 0};
                     if (newy < 0) {newy = this.state.fieldY - 1};
                 } else {
+                    this.state.audioPunch.play();
                     this.finishTheGame();
                 }
         } 
         headNew = `${newy}-${newx}`;
         if (snake.includes(headNew)) {
+            this.state.audioPunch.play();
             this.finishTheGame();
         }
         let arr = snake;
@@ -225,6 +253,7 @@ export default class GameField extends React.Component {
         // if (this.fieldNumber(headNew) in this.state.foodList) {
         if (this.state.foodList.includes(this.fieldNumber(headNew))) {
             // this.createFood(this.state.foodList[Math.floor(Math.random() * this.state.foodList.length)]);
+            this.state.audioEat.play()
             this.createFood();
             this.setState({score: this.state.score + 1});
         } else if (this.state.gameIsRunning) {
@@ -243,6 +272,9 @@ export default class GameField extends React.Component {
         // console.log(this.state.fieldXxY)
         let i = 1;
         
+        // useSound(explosion);
+        this.state.audioExp.play()
+
         let arr2 = this.state.fieldXxY;
         while (i < this.state.snake.length) { 
             var food_x = Math.floor(Math.random() * this.state.fieldX);
@@ -268,6 +300,19 @@ export default class GameField extends React.Component {
     }
 
     finishTheGame = () => {
+
+        let arr = this.state.fieldXxY.map((item) => {
+            const i = item;
+            return (
+                i.map((subitem) => {
+                    return (
+                        subitem === 1 ? 4 : subitem
+                    )
+                })
+            )
+        })
+        this.setState({fieldXxY: arr});
+        
         this.setState({gameIsRunning: false});
         clearInterval(this.state.snakeTimer);
         clearInterval(this.state.obstacleTimer);
@@ -283,7 +328,42 @@ export default class GameField extends React.Component {
         // this.render();
     }
 
+    wallsCheckHandler = (e) => {
+        this.state.audioBut.play()
+        this.setState({noWalls: !e})
+    }
+
+    obstaclesCheckHandler = (e) => {
+        this.state.audioBut.play()
+        // e.preventDefault();
+        this.setState({obstacles: e, obstaclesDisap: e})
+    }
+
+    obstaclesDisappCheckHandler = (e) => {
+        this.setState({obstaclesDisap: !e.target.value})
+    }
+
+    setRadioValue = (e) => {
+        this.state.audioBut.play()
+        this.setState({radioValue: e})
+        console.log(e);
+        this.setState({fieldX: +e.split('x')[0]});
+        this.setState({fieldY: +e.split('x')[1]});
+    }
+
+    settingsOpen = () => {
+        this.state.audioBut.play()
+        this.setState({settingsOpen: !this.state.settingsOpen})
+    }
+
     render() {
+
+        const radios = [
+            { name: '10x10', value: '10x10' },
+            { name: '15x15', value: '15x15' },
+            { name: '20x20', value: '20x20' },
+          ];
+
         return <div className='game'>
             <div className='snake-field'>
                 <table className='game-table' id={`table-${this.state.fieldX}x${this.state.fieldY}`}>
@@ -299,7 +379,6 @@ export default class GameField extends React.Component {
                                                     className={`game-table-cell 
                                                     cell-${index}-${i} 
                                                     game-table-cell-status-${subitem}`}
-                                                    // css-data={this.state.style}
                                                 ></td>
                                             )
                                         })
@@ -313,32 +392,113 @@ export default class GameField extends React.Component {
             </div>
             <span>Hi-Score: {this.state.hiScore}</span>
             <span>Score: {this.state.score}</span>
-            <button onClick={this.startGame}>Start</button>
-            <div>
-                <select className="form-select" onChange={this.fieldSizeChanged}>
-                    {/* <option defaultValue>Field size</option> */}
-                    <option value="10x10">10x10</option>
-                    <option value="15x15">15x15</option>
-                    <option value="20x20">20x20</option>
-                </select>
+            <Button variant="dark" onClick={this.startGame}>Start</Button>
 
 
-                <label value='Walls'>
-                    {/* <checkbox></checkbox> */}
-                </label>
-                <label value='Obbstacles'>
-                    {/* <checkbox></checkbox> */}
-                </label>
-                <label value='Obstacles disappearing'>
-                    {/* <checkbox></checkbox> */}
-                </label>
-                <label value='Snake speed increasing'>
-                    {/* <checkbox></checkbox> */}
-                </label>
-                <label value='Snake speed'>
-                    {/* <checkbox></checkbox> */}
-                </label>
-            </div>
+            <Button
+                onClick={() => this.settingsOpen()}
+                aria-controls="example-collapse-text"
+                aria-expanded={this.state.settingsOpen}
+                variant="dark"
+            >
+                Settings
+            </Button>
+            <Collapse in={this.state.settingsOpen}>
+                <div id="example-collapse-text">
+                
+                <ButtonGroup toggle>
+                    {radios.map((radio, idx) => (
+                    <ToggleButton
+                        key={idx}
+                        type="radio"
+                        variant="dark"
+                        name="radio"
+                        value={radio.value}
+                        checked={this.state.radioValue === radio.value}
+                        onChange={(e) => this.setRadioValue(e.currentTarget.value)}
+                    >
+                        {radio.name}
+                    </ToggleButton>
+                    ))}
+                </ButtonGroup>
+
+                <ButtonGroup toggle className="mb-2">
+                    <ToggleButton
+                    type="checkbox"
+                    variant="dark"
+                    checked={!this.state.noWalls}
+                    value="1"
+                    onChange={(e) => this.wallsCheckHandler(e.currentTarget.checked)}
+                    >
+                    Walls
+                    </ToggleButton>
+                </ButtonGroup>
+
+                <ButtonGroup toggle className="mb-2">
+                    <ToggleButton
+                    type="checkbox"
+                    variant="dark"
+                    checked={this.state.obstacles}
+                    value="1"
+                    onChange={(e) => this.obstaclesCheckHandler(e.currentTarget.checked)}
+                    >
+                    Obstacles
+                    </ToggleButton>
+                </ButtonGroup>
+
+                <audio className="audio-element">
+                    <source src="explosion.mp3"></source>
+                </audio>
+                <audio className="audio-button">
+                    <source src="button.mp3"></source>
+                </audio>
+                <audio className="audio-eat">
+                    <source src="eat.mp3"></source>
+                </audio>
+                <audio className="audio-punch">
+                    <source src="punch.mp3"></source>
+                </audio>
+
+                </div>
+            </Collapse>
+
+
+
+            
+
+            {/* <Form>
+                <Form.Group controlId="formGroupEmail">
+                    <Form.Label>Field size</Form.Label>
+                    <Form.Control
+                        as="select"
+                        className="mr-sm-2"
+                        id="fieldSizeSelect"
+                        custom
+                        onChange={this.fieldSizeChanged}
+                    >
+                        <option value="10x10">10 x 10</option>
+                        <option value="15x15">15 x 15</option>
+                        <option value="20x20">20 x 20</option>
+                    </Form.Control>
+                </Form.Group>*/}
+                {/* 
+                    doesnt rerender after changing value
+                */}
+                {/*<Form.Group controlId="formBasicRange">
+                    <Form.Label>Snake speed</Form.Label>
+                    <Form.Control type="range" />
+                </Form.Group>*/}
+
+                {/*<Form.Group controlId="obstaclesCheck">
+                    <Form.Check label="Obstacles" onChange={this.obstaclesCheckHandler} />
+                </Form.Group>
+                <Form.Group controlId="obstaclesDisappCheck">
+                    <Form.Check label="Obstacles disappearing" value={this.state.obstaclesDisap} onChange={this.obstaclesDisappCheckHandler} />
+                </Form.Group>
+                <Form.Group controlId="speedIncreaseCheck">
+                    <Form.Check label="Snake speed increasing" />
+                </Form.Group>
+            </Form> */}
         </div>
     }
 }

@@ -6,6 +6,8 @@ import GameField from './GameField.jsx';
 // import Interface from './Interface.jsx';
 import Footer from './Footer.jsx';
 
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 function App() {
   return (
     <div className="App">

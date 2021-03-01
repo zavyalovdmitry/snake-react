@@ -69,10 +69,13 @@ export default class GameField extends React.Component {
             audioPunch: null,
             audioBomb: null,
             audioFood: null,
+            audioStart: null,
 
             speedSetting: 50,
             isPaused: false,
-            isSound: true
+            isSound: true,
+
+            gameIsOver: false
 
             // handle: useFullScreenHandle()
         };
@@ -82,6 +85,7 @@ export default class GameField extends React.Component {
         this.gameTableInit();
         document.addEventListener('keydown', this.changeDirection);
         
+        this.setState({audioStart: document.getElementsByClassName("audio-start")[0]});
         this.setState({audioExp: document.getElementsByClassName("audio-element")[0]});
         this.setState({audioBut: document.getElementsByClassName("audio-button")[0]});
         this.setState({audioEat: document.getElementsByClassName("audio-eat")[0]});
@@ -175,12 +179,16 @@ export default class GameField extends React.Component {
     }
 
     startGame = () => {
+        console.log(this.state.gameIsOver)
+        // this.setState({gameIsOver: false});
         // document.getElementsByClassName("game-table").style.borderColor = this.state.noWalls ? 'none' : 'red';
         // this.state.audioBut.play()
         this.playSound(this.state.audioBut);
+        this.playSound(this.state.audioStart);
         // document.getElementsById("settingsGroup") = false;
         this.setState({settingsOpen: false});
         this.finishTheGame();
+        this.setState({gameIsOver: false});
         this.gameTableInit();
         this.setState({score: 0});
         this.setState({hiScore: this.state.hiScore < this.state.score ? this.state.score : this.state.hiScore})
@@ -345,6 +353,7 @@ export default class GameField extends React.Component {
     }
 
     finishTheGame = () => {
+        // this.render()
 
         let arr = this.state.fieldXxY.map((item) => {
             const i = item;
@@ -359,13 +368,18 @@ export default class GameField extends React.Component {
         this.setState({fieldXxY: arr});
         
         this.setState({gameIsRunning: false});
+        this.setState({gameIsOver: true});
+
         clearInterval(this.state.snakeTimer);
         clearInterval(this.state.obstacleTimer);
         clearInterval(this.state.noObstacleTimer);
         // alert('Вы проиграли! Ваш результат: ' + this.state.snake.length);
+        // document.getElementsByClassName("game-table")[0].style.backgroundImage = 'url(\'over.jpg\')';
+        // document.getElementsByClassName("game-table")[0].style.backgroundSize = "cover";
     }
 
     fieldSizeChanged = (e) => {
+        
         this.setState({fieldX: +e.target.value.split('x')[0]});
         this.setState({fieldY: +e.target.value.split('x')[1]});
         // this.gameTableInit();
@@ -386,16 +400,6 @@ export default class GameField extends React.Component {
         this.playSound(this.state.audioBut);
         document.getElementsByClassName("game-table")[0].style.border = e ?'5px solid red' : 'none';
         this.setState({noWalls: !e});
-        // if (this.state.noWalls) {
-        //     document.getElementsByClassName("game-table")[0].style.removeProperty('border');
-        // } else {
-        //     document.getElementsByClassName("game-table")[0].style.border = '5px solid red';
-        // }
-        // console.log(document.getElementsByClassName("game-table"))
-        
-        // document.getElementsByClassName("game-table")[0].style.removeProperty('border');
-
-        // document.querySelector('#snake-field').style.border = '2px solid red';
     }
 
     obstaclesCheckHandler = (e) => {
@@ -475,7 +479,7 @@ export default class GameField extends React.Component {
 
             {/* <FullScreen handle={this.state.handle}> */}
             <div className='snake-field'>
-                <table className='game-table' id={`table-${this.state.fieldX}x${this.state.fieldY}`}>
+                <table className={`game-table${this.state.gameIsOver ? '-over' : ''}`} id={`table-${this.state.fieldX}x${this.state.fieldY}`}>
                     <tbody>
                     {
                         this.state.fieldXxY.map((item, index) => {
@@ -594,6 +598,9 @@ export default class GameField extends React.Component {
                         </ToggleButton>
                     </ButtonGroup>
 
+                    <audio className="audio-start">
+                        <source src="battle.mp3"></source>
+                    </audio>
                     <audio className="audio-element">
                         <source src="explosion.mp3"></source>
                     </audio>
@@ -615,44 +622,6 @@ export default class GameField extends React.Component {
 
                 </div>
             </Collapse>
-
-
-
-            
-
-            {/* <Form>
-                <Form.Group controlId="formGroupEmail">
-                    <Form.Label>Field size</Form.Label>
-                    <Form.Control
-                        as="select"
-                        className="mr-sm-2"
-                        id="fieldSizeSelect"
-                        custom
-                        onChange={this.fieldSizeChanged}
-                    >
-                        <option value="10x10">10 x 10</option>
-                        <option value="15x15">15 x 15</option>
-                        <option value="20x20">20 x 20</option>
-                    </Form.Control>
-                </Form.Group>*/}
-                {/* 
-                    doesnt rerender after changing value
-                */}
-                {/*<Form.Group controlId="formBasicRange">
-                    <Form.Label>Snake speed</Form.Label>
-                    <Form.Control type="range" />
-                </Form.Group>*/}
-
-                {/*<Form.Group controlId="obstaclesCheck">
-                    <Form.Check label="Obstacles" onChange={this.obstaclesCheckHandler} />
-                </Form.Group>
-                <Form.Group controlId="obstaclesDisappCheck">
-                    <Form.Check label="Obstacles disappearing" value={this.state.obstaclesDisap} onChange={this.obstaclesDisappCheckHandler} />
-                </Form.Group>
-                <Form.Group controlId="speedIncreaseCheck">
-                    <Form.Check label="Snake speed increasing" />
-                </Form.Group>
-            </Form> */}
         </div>
     }
 }
@@ -669,7 +638,6 @@ export default class GameField extends React.Component {
 // досрочное прервыанаие звука
 
 // pause button
-// fullscreen 
 // autoplay
 
 // music rate
@@ -679,3 +647,6 @@ export default class GameField extends React.Component {
 // game saving while reload
 
 // backend
+
+//fullscreen text color
+//fullscreen button

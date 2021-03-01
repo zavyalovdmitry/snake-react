@@ -1,4 +1,8 @@
 // import logo from './logo.svg';
+// import React, { useRef, useState, useCallback } from "react";
+import React from "react";
+import { FullScreen, useFullScreenHandle } from "react-full-screen";
+
 import './App.css';
 
 import Header from './Header.jsx';
@@ -8,7 +12,15 @@ import Footer from './Footer.jsx';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-function App() {
+export default function App() {
+  const handle = useFullScreenHandle();
+  // let fullScreenRef = useRef(null);
+  // let [fullScreenMode, setfullScreenMode] = useState(false);
+
+  // let fullScreenToggler = () => {
+  //   setfullScreenMode(!fullScreenMode);
+  // }
+
   return (
     <div className="App">
       {/* <header className="App-header">
@@ -26,11 +38,15 @@ function App() {
         </a>
       </header> */}
       <Header />
-      <GameField />
-      {/* <Interface /> */}
+        <FullScreen handle={handle} className='FS'>
+          
+          <GameField />
+        </FullScreen>
+        {/* <Interface /> */}
+        <button onClick={handle.enter}>
+          Enter fullscreen
+        </button>
       <Footer />
     </div>
   );
 }
-
-export default App;

@@ -6,6 +6,13 @@ import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import ToggleButton from 'react-bootstrap/ToggleButton';
 import Collapse from 'react-bootstrap/Collapse';
+// import Form from 'react-bootstrap/FormLabel';
+
+import 'react-bootstrap-range-slider/dist/react-bootstrap-range-slider.css';
+import RangeSlider from 'react-bootstrap-range-slider';
+// import reactDom from 'react-dom';
+
+// import { FullScreen, useFullScreenHandle } from "react-full-screen";
 
 // import useSound from 'use-sound';
 // import explosion from './explosion.mp3';
@@ -18,7 +25,7 @@ export default class GameField extends React.Component {
         super();
 
         this.state = {
-            style: "\\1F357",
+            // style: "\\1F357",
             // field legend:
             // 0 - empty
             // 1 - snake
@@ -37,8 +44,9 @@ export default class GameField extends React.Component {
             fieldXxY: [],
             snake: [],
             obstaclesArr: [],
-            snakeSpeed: 300,        
-            foodTimer: 5000,       
+            snakeSpeedInit: 300,     
+            snakeSpeed: 0,   
+            foodTimer: 1000,       
             obstacleInt: 7000,
             noObstacleInt: 11000,
             direction: 'x+',
@@ -58,7 +66,15 @@ export default class GameField extends React.Component {
             audioExp: null,
             audioBut: null,
             audioEat: null,
-            audioPunch: null
+            audioPunch: null,
+            audioBomb: null,
+            audioFood: null,
+
+            speedSetting: 50,
+            isPaused: false,
+            isSound: true
+
+            // handle: useFullScreenHandle()
         };
     }
 
@@ -70,6 +86,10 @@ export default class GameField extends React.Component {
         this.setState({audioBut: document.getElementsByClassName("audio-button")[0]});
         this.setState({audioEat: document.getElementsByClassName("audio-eat")[0]});
         this.setState({audioPunch: document.getElementsByClassName("audio-punch")[0]});
+        this.setState({audioBomb: document.getElementsByClassName("audio-bomb")[0]});
+        this.setState({audioFood: document.getElementsByClassName("audio-food")[0]});
+
+        document.getElementsByClassName("game-table")[0].style.border = this.state.noWalls ? 'none' : '5px solid red';
     }
 
     changeDirection = (e) => {
@@ -115,10 +135,14 @@ export default class GameField extends React.Component {
         }
         let y = Math.floor(this.state.fieldY / 2);
         let x = Math.floor(this.state.fieldX / 2);
-        arr[y][x] = arr[y][x + 1] = 1;                
+        arr[y][x] = arr[y][x + 1] = 1;    
+        //хз откуда лишний элемент
+        //не когда разбираться
+        arr.pop();            
         this.setState({fieldXxY: arr});
         arrSn.push(`${y}-${x}`, `${y}-${x + 1}`)
         this.setState({snake: arrSn});
+        this.setState({snakeSpeed: this.state.snakeSpeedInit})
     }
 
     snakeDraw =() => {
@@ -144,16 +168,28 @@ export default class GameField extends React.Component {
         this.setState({fieldXxY: arr});
     }
 
+    playSound = (sound) => {
+        if (this.state.isSound) {
+            sound.play();
+        }
+    }
+
     startGame = () => {
-        this.state.audioBut.play()
+        // document.getElementsByClassName("game-table").style.borderColor = this.state.noWalls ? 'none' : 'red';
+        // this.state.audioBut.play()
+        this.playSound(this.state.audioBut);
+        // document.getElementsById("settingsGroup") = false;
+        this.setState({settingsOpen: false});
         this.finishTheGame();
         this.gameTableInit();
         this.setState({score: 0});
         this.setState({hiScore: this.state.hiScore < this.state.score ? this.state.score : this.state.hiScore})
         this.setState({direction: 'x+'})
         this.setState({gameIsRunning: true});
-        this.setState({snakeTimer: setInterval(this.move, this.state.snakeSpeed)});
+
         setTimeout(this.createFood, this.state.foodTimer);
+
+        this.setState({snakeTimer: setInterval(this.move, this.state.snakeSpeed)});        
         if (this.state.obstacles) {
             this.setState({obstacleTimer: setInterval(this.createObstacle, this.state.obstacleInt)});
         }
@@ -163,12 +199,16 @@ export default class GameField extends React.Component {
     }
 
     createFood = () => {
+        // this.state.audioFood.play()
+        this.playSound(this.state.audioFood);
         this.createFoodOrObstacle(this.state.foodList[Math.floor(Math.random() * this.state.foodList.length)]);
         // this.setState({snakeSpeed: this.state.snakeSpeed - 1});
         // this.setState({snakeTimer: setInterval(this.move, this.state.snakeSpeed)});
     }
 
     createObstacle = () => {
+        // this.state.audioBomb.play()
+        this.playSound(this.state.audioBomb);
         this.createFoodOrObstacle(3);
     }
 
@@ -233,13 +273,15 @@ export default class GameField extends React.Component {
                     if (newy > this.state.fieldY - 1) {newy = 0};
                     if (newy < 0) {newy = this.state.fieldY - 1};
                 } else {
-                    this.state.audioPunch.play();
+                    // this.state.audioPunch.play();
+                    this.playSound(this.state.audioPunch);
                     this.finishTheGame();
                 }
         } 
         headNew = `${newy}-${newx}`;
         if (snake.includes(headNew)) {
-            this.state.audioPunch.play();
+            // this.state.audioPunch.play();
+            this.playSound(this.state.audioPunch);
             this.finishTheGame();
         }
         let arr = snake;
@@ -253,8 +295,10 @@ export default class GameField extends React.Component {
         // if (this.fieldNumber(headNew) in this.state.foodList) {
         if (this.state.foodList.includes(this.fieldNumber(headNew))) {
             // this.createFood(this.state.foodList[Math.floor(Math.random() * this.state.foodList.length)]);
-            this.state.audioEat.play()
-            this.createFood();
+            // this.state.audioEat.play()
+            this.playSound(this.state.audioEat);
+            setTimeout(this.createFood, this.state.foodTimer);
+            // this.createFood();
             this.setState({score: this.state.score + 1});
         } else if (this.state.gameIsRunning) {
             snake.splice(0, 1);
@@ -273,7 +317,8 @@ export default class GameField extends React.Component {
         let i = 1;
         
         // useSound(explosion);
-        this.state.audioExp.play()
+        // this.state.audioExp.play()
+        this.playSound(this.state.audioExp);
 
         let arr2 = this.state.fieldXxY;
         while (i < this.state.snake.length) { 
@@ -328,15 +373,46 @@ export default class GameField extends React.Component {
         // this.render();
     }
 
+    soundCheckHandler = (e) => {
+        // this.state.audioBut.play()
+        if (!this.state.isSound) {
+            this.playSound(this.state.audioBut);
+        }
+        this.setState({isSound: e})
+    }
+
     wallsCheckHandler = (e) => {
-        this.state.audioBut.play()
-        this.setState({noWalls: !e})
+        // this.state.audioBut.play()
+        this.playSound(this.state.audioBut);
+        document.getElementsByClassName("game-table")[0].style.border = e ?'5px solid red' : 'none';
+        this.setState({noWalls: !e});
+        // if (this.state.noWalls) {
+        //     document.getElementsByClassName("game-table")[0].style.removeProperty('border');
+        // } else {
+        //     document.getElementsByClassName("game-table")[0].style.border = '5px solid red';
+        // }
+        // console.log(document.getElementsByClassName("game-table"))
+        
+        // document.getElementsByClassName("game-table")[0].style.removeProperty('border');
+
+        // document.querySelector('#snake-field').style.border = '2px solid red';
     }
 
     obstaclesCheckHandler = (e) => {
-        this.state.audioBut.play()
+        // this.state.audioBut.play()
+        this.playSound(this.state.audioBut);
         // e.preventDefault();
-        this.setState({obstacles: e, obstaclesDisap: e})
+        this.setState({obstacles: e})
+        if (!e) {
+            this.setState({obstaclesDisap: e})
+        }
+    }
+
+    obstaclesDisapCheckHandler = (e) => {
+        // this.state.audioBut.play()
+        this.playSound(this.state.audioBut);
+        // e.preventDefault();
+        this.setState({obstaclesDisap: e})
     }
 
     obstaclesDisappCheckHandler = (e) => {
@@ -344,16 +420,47 @@ export default class GameField extends React.Component {
     }
 
     setRadioValue = (e) => {
-        this.state.audioBut.play()
+        // this.state.audioBut.play()
+        this.playSound(this.state.audioBut);
         this.setState({radioValue: e})
         console.log(e);
         this.setState({fieldX: +e.split('x')[0]});
         this.setState({fieldY: +e.split('x')[1]});
     }
 
+    setSnakeSpeed = (e) => {
+        // this.state.audioBut.play()
+        let s = this.state.snakeSpeedInit - (e - 50) * this.state.snakeSpeedInit / 100;
+        
+        this.setState({snakeSpeed: s})
+        this.setState({speedSetting: e});
+        // console.log(this.state.snakeSpeed)
+    }
+
     settingsOpen = () => {
-        this.state.audioBut.play()
+        // this.state.audioBut.play()
+        this.playSound(this.state.audioBut);
         this.setState({settingsOpen: !this.state.settingsOpen})
+    }
+
+    pauseGame = () => {
+        this.setState({isPaused: !this.state.isPaused})
+        
+        if(this.state.isPaused) {
+            clearInterval(this.state.snakeTimer);
+            clearInterval(this.state.obstacleTimer);
+            clearInterval(this.state.noObstacleTimer);
+            console.log('pause')
+            // this.setState({gameIsRunning: false});
+        } else {
+            this.setState({snakeTimer: setInterval(this.move, this.state.snakeSpeed)});        
+            if (this.state.obstacles) {
+                this.setState({obstacleTimer: setInterval(this.createObstacle, this.state.obstacleInt)});
+            }
+            if (this.state.obstaclesDisap) {
+                this.setState({noObstacleTimer: setInterval(this.deleteObstacle, this.state.noObstacleInt)});
+            }
+        }
     }
 
     render() {
@@ -365,6 +472,8 @@ export default class GameField extends React.Component {
           ];
 
         return <div className='game'>
+
+            {/* <FullScreen handle={this.state.handle}> */}
             <div className='snake-field'>
                 <table className='game-table' id={`table-${this.state.fieldX}x${this.state.fieldY}`}>
                     <tbody>
@@ -390,74 +499,119 @@ export default class GameField extends React.Component {
                     </tbody>
                 </table>
             </div>
-            <span>Hi-Score: {this.state.hiScore}</span>
-            <span>Score: {this.state.score}</span>
-            <Button variant="dark" onClick={this.startGame}>Start</Button>
+            {/* </FullScreen> */}
 
+            {/* <button onClick={this.state.handle.enter}>Fullscreen</button> */}
+            {/* <div> */}
+                <span>Hi-Score: {this.state.hiScore}</span>
+                <span>Score: {this.state.score}</span>
+            {/* </div> */}
+            <div className="game-btns">
+                <Button variant="dark" onClick={this.startGame} className="mb-2">New Game</Button>
+                {/* <Button variant="dark" onClick={this.pauseGame} className="mb-2">{this.state.isPaused ? 'Resume' : 'Pause'}</Button> */}
+            </div>
 
             <Button
                 onClick={() => this.settingsOpen()}
                 aria-controls="example-collapse-text"
                 aria-expanded={this.state.settingsOpen}
                 variant="dark"
+                className="mb-2"
             >
                 Settings
             </Button>
-            <Collapse in={this.state.settingsOpen}>
-                <div id="example-collapse-text">
+            <Collapse in={this.state.settingsOpen} id="settingsGroup">
+                <div id="collapse-settings" className="settingsGroup mb-2">
                 
-                <ButtonGroup toggle>
-                    {radios.map((radio, idx) => (
-                    <ToggleButton
-                        key={idx}
-                        type="radio"
+                    <ButtonGroup toggle className="mb-2">
+                        {radios.map((radio, idx) => (
+                        <ToggleButton
+                            key={idx}
+                            type="radio"
+                            variant="dark"
+                            name="radio"
+                            value={radio.value}
+                            checked={this.state.radioValue === radio.value}
+                            onChange={(e) => this.setRadioValue(e.currentTarget.value)}
+                            // disabled
+                        >
+                            {radio.name}
+                        </ToggleButton>
+                        ))}
+                    </ButtonGroup>
+
+                    <span>Speed</span>
+                    <RangeSlider
+                        value={this.state.speedSetting}
+                        onChange={e => this.setSnakeSpeed(e.target.value)}
+                    />
+
+                    <ButtonGroup toggle className="mb-2">
+                        <ToggleButton
+                        type="checkbox"
                         variant="dark"
-                        name="radio"
-                        value={radio.value}
-                        checked={this.state.radioValue === radio.value}
-                        onChange={(e) => this.setRadioValue(e.currentTarget.value)}
-                    >
-                        {radio.name}
-                    </ToggleButton>
-                    ))}
-                </ButtonGroup>
+                        checked={this.state.isSound}
+                        value="1"
+                        onChange={(e) => this.soundCheckHandler(e.currentTarget.checked)}
+                        >
+                        Sound
+                        </ToggleButton>
+                    </ButtonGroup>
 
-                <ButtonGroup toggle className="mb-2">
-                    <ToggleButton
-                    type="checkbox"
-                    variant="dark"
-                    checked={!this.state.noWalls}
-                    value="1"
-                    onChange={(e) => this.wallsCheckHandler(e.currentTarget.checked)}
-                    >
-                    Walls
-                    </ToggleButton>
-                </ButtonGroup>
+                    <ButtonGroup toggle className="mb-2">
+                        <ToggleButton
+                        type="checkbox"
+                        variant="dark"
+                        checked={!this.state.noWalls}
+                        value="1"
+                        onChange={(e) => this.wallsCheckHandler(e.currentTarget.checked)}
+                        >
+                        Walls
+                        </ToggleButton>
+                    </ButtonGroup>
 
-                <ButtonGroup toggle className="mb-2">
-                    <ToggleButton
-                    type="checkbox"
-                    variant="dark"
-                    checked={this.state.obstacles}
-                    value="1"
-                    onChange={(e) => this.obstaclesCheckHandler(e.currentTarget.checked)}
-                    >
-                    Obstacles
-                    </ToggleButton>
-                </ButtonGroup>
+                    <ButtonGroup toggle className="mb-2">
+                        <ToggleButton
+                        type="checkbox"
+                        variant="dark"
+                        checked={this.state.obstacles}
+                        value="1"
+                        onChange={(e) => this.obstaclesCheckHandler(e.currentTarget.checked)}
+                        >
+                        Obstacles
+                        </ToggleButton>
+                    </ButtonGroup>
 
-                <audio className="audio-element">
-                    <source src="explosion.mp3"></source>
-                </audio>
-                <audio className="audio-button">
-                    <source src="button.mp3"></source>
-                </audio>
-                <audio className="audio-eat">
-                    <source src="eat.mp3"></source>
-                </audio>
-                <audio className="audio-punch">
-                    <source src="punch.mp3"></source>
-                </audio>
+                    <ButtonGroup toggle className="mb-2">
+                        <ToggleButton
+                        type="checkbox"
+                        variant="dark"
+                        checked={this.state.obstaclesDisap}
+                        value="1"
+                        onChange={(e) => this.obstaclesDisapCheckHandler(e.currentTarget.checked)}
+                        >
+                        Obstacles disappearing
+                        </ToggleButton>
+                    </ButtonGroup>
+
+                    <audio className="audio-element">
+                        <source src="explosion.mp3"></source>
+                    </audio>
+                    <audio className="audio-button">
+                        <source src="button.mp3"></source>
+                    </audio>
+                    <audio className="audio-eat">
+                        <source src="eat.mp3"></source>
+                    </audio>
+                    <audio className="audio-punch">
+                        <source src="punch.mp3"></source>
+                    </audio>
+                    <audio className="audio-bomb">
+                        <source src="bomb.mp3"></source>
+                    </audio>
+                    <audio className="audio-food">
+                        <source src="food.mp3"></source>
+                    </audio>
 
                 </div>
             </Collapse>
@@ -512,24 +666,13 @@ export default class GameField extends React.Component {
 // head picture
 
 // music
-// sounds
+// досрочное прервыанаие звука
 
-
-// start button
-// new game
 // pause button
 // fullscreen 
 // autoplay
 
-// field size
-// walls check
-// obstacles check
-// obstaclesdisapp check
-// snake speed
-// snake speed increase
-
-// music on/off + rate
-// sounds
+// music rate
 
 // records table - 10
 

@@ -4,9 +4,14 @@
 
 html,
 body,
-#root {
+#root,
+.FS {
   height: 100%;
 }
+
+/* .FS {
+  flex: 0 0 auto;
+} */
 
 .App {
   display: flex;

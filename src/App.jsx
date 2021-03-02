@@ -39,13 +39,12 @@ export default function App() {
       </header> */}
       <Header />
         <FullScreen handle={handle} className='FS'>
-          
-          <GameField />
+          <GameField fullscreen={handle.enter}/>
         </FullScreen>
         {/* <Interface /> */}
-        <button onClick={handle.enter}>
+        {/* <button onClick={handle.enter}>
           Enter fullscreen
-        </button>
+        </button> */}
       <Footer />
     </div>
   );

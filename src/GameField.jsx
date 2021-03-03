@@ -6,41 +6,18 @@ import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import ToggleButton from 'react-bootstrap/ToggleButton';
 import Collapse from 'react-bootstrap/Collapse';
-// import Form from 'react-bootstrap/FormLabel';
 
 import 'react-bootstrap-range-slider/dist/react-bootstrap-range-slider.css';
 import RangeSlider from 'react-bootstrap-range-slider';
-// import reactDom from 'react-dom';
-
-// import { FullScreen, useFullScreenHandle } from "react-full-screen";
-
-// import useSound from 'use-sound';
-// import explosion from './explosion.mp3';
-
-
-// import Form from 'react-bootstrap/Form';
 
 export default class GameField extends React.Component {
     constructor() {
         super();
 
         this.state = {
-            // style: "\\1F357",
-            // field legend:
-            // 0 - empty
-            // 1 - snake
-            // 2 - food
-            // 3 - obstacle
-            // 4 - pieces
-            // 5 - boomplace
-            //-----------------
-            // -x+  - horizontally
-            // -
-            // y    - vertically
-            // +
             foodList: [2, 11, 12, 13, 14, 15, 16, 17, 18 ,19],
-            fieldX: 10,
-            fieldY: 10,
+            fieldX: 15,
+            fieldY: 15,
             fieldXxY: [],
             snake: [],
             obstaclesArr: [],
@@ -60,7 +37,7 @@ export default class GameField extends React.Component {
             obstaclesDisap: true,
             noWalls: true,
 
-            radioValue: '10x10',
+            radioValue: '15x15',
             settingsOpen: false,
 
             audioExp: null,
@@ -72,19 +49,22 @@ export default class GameField extends React.Component {
             audioStart: null,
 
             speedSetting: 50,
-            isPaused: false,
+            isPaused: true,
             isSound: true,
 
             gameIsOver: false,
             autoPlayIsRunning: false,
             autoplayTimer: null,
-            autoplayInt: 100
+            autoplayInt: 100,
+            FSmodeOn: false,
 
-            // handle: useFullScreenHandle()
+            autoPlayStartInt: 3000
+
         };
     }
 
     componentDidMount() {
+        
         this.gameTableInit();
         document.addEventListener('keydown', this.changeDirection);
         document.getElementById("game-table").addEventListener('dblclick', this.goFullscreen);
@@ -98,12 +78,20 @@ export default class GameField extends React.Component {
         this.setState({audioFood: document.getElementsByClassName("audio-food")[0]});
 
         document.getElementById("game-table").style.border = this.state.noWalls ? 'none' : '5px solid red';
+
+        // setTimeout(() => {
+        //     this.setState({autoPlayIsRunning: this.setState.gameIsRunning ? false : true});
+        //     this.startGame();
+        // }, 
+        // this.state.autoPlayStartInt);
     }
 
     goFullscreen = () => {
-// console.log('fs')
-        this.props.fullscreen();
-
+        // if (!this.state.FSmodeOn) {
+            this.props.fullscreen();
+        //     this.setState((prevState) => ({ FSmodeOn: !prevState.FSmodeOn }));
+        // }
+        
     }
 
     changeDirection = (e) => {
@@ -136,6 +124,15 @@ export default class GameField extends React.Component {
                 break;
         }
         this.setState({direction: direction});
+
+        // let c = () => {
+            // if (e.keyCode === 27 && this.state.FSmodeOn) {
+            //     console.log('esc')
+            //     this.setState({ FSmodeOn: !this.state.FSmodeOn });
+            // }
+        // }
+
+        // c();
     }
 
     gameTableInit = () => {
@@ -150,8 +147,6 @@ export default class GameField extends React.Component {
         let y = Math.floor(this.state.fieldY / 2);
         let x = Math.floor(this.state.fieldX / 2);
         arr[y][x] = arr[y][x + 1] = 1;    
-        //хз откуда лишний элемент
-        //не когда разбираться
         arr.pop();            
         this.setState({fieldXxY: arr});
         arrSn.push(`${y}-${x}`, `${y}-${x + 1}`)
@@ -189,14 +184,9 @@ export default class GameField extends React.Component {
     }
 
     startGame = () => {
-        // console.log(this.state.gameIsOver)
-        // this.setState({gameIsOver: false});
-        // document.getElementsByClassName("game-table").style.borderColor = this.state.noWalls ? 'none' : 'red';
-        // this.state.audioBut.play()
         if (!this.state.autoPlayIsRunning) {
             this.playSound(this.state.audioBut);
             this.playSound(this.state.audioStart);
-            // document.getElementsById("settingsGroup") = false;
             this.setState({settingsOpen: false});
             this.finishTheGame();
             this.setState({gameIsOver: false});
@@ -224,22 +214,15 @@ export default class GameField extends React.Component {
     }
 
     autoplay = () => {
-        // foodList: [2, 11, 12, 13, 14, 15, 16, 17, 18 ,19],
-        // direction
-        // fieldXxY
         let fieldXxY = this.state.fieldXxY;
         let food = [];
         let snake = [+this.state.snake[this.state.snake.length - 1].split('-')[0], +this.state.snake[this.state.snake.length - 1].split('-')[1]]
-        // console.log(snake)
 
         for (let y = 0; y < this.state.fieldY; y++) {
             for (let x = 0; x < this.state.fieldX; x++) {
-                // let x = fieldXxY[y].indexOf(2);
-                // if (x > -1) {
                 if (this.state.foodList.includes(fieldXxY[y][x])) {
                     food = [];
                     food.push(y, x);
-                    // console.log(food)
                 }
             }
         }
@@ -250,11 +233,9 @@ export default class GameField extends React.Component {
                     if (food[0] > snake[0]) {
                         this.setState({direction: 'y-'})
                     } else 
-                        // if (food[0] < snake[0]) 
                         {
                         this.setState({direction: 'y+'})
                     }
-                    // console.log('ddd')
                 }
                 break;
             case 'x-':
@@ -262,7 +243,6 @@ export default class GameField extends React.Component {
                     if (food[0] < snake[0]) {
                         this.setState({direction: 'y+'})
                     } else 
-                        // if (food[0] < snake[0]) 
                         {
                         this.setState({direction: 'y-'})
                     }
@@ -273,7 +253,6 @@ export default class GameField extends React.Component {
                     if (food[1] > snake[1]) {
                         this.setState({direction: 'x+'})
                     } else 
-                        // if (food[1] < snake[1]) 
                         {
                         this.setState({direction: 'x-'})
                     }
@@ -284,7 +263,6 @@ export default class GameField extends React.Component {
                     if (food[1] > snake[1]) {
                         this.setState({direction: 'x+'})
                     } else 
-                        // if (food[1] < snake[1]) 
                         {
                         this.setState({direction: 'x-'})
                     }
@@ -295,15 +273,11 @@ export default class GameField extends React.Component {
     }
 
     createFood = () => {
-        // this.state.audioFood.play()
         this.playSound(this.state.audioFood);
         this.createFoodOrObstacle(this.state.foodList[Math.floor(Math.random() * this.state.foodList.length)]);
-        // this.setState({snakeSpeed: this.state.snakeSpeed - 1});
-        // this.setState({snakeTimer: setInterval(this.move, this.state.snakeSpeed)});
     }
 
     createObstacle = () => {
-        // this.state.audioBomb.play()
         this.playSound(this.state.audioBomb);
         this.createFoodOrObstacle(3);
     }
@@ -369,33 +343,25 @@ export default class GameField extends React.Component {
                     if (newy > this.state.fieldY - 1) {newy = 0};
                     if (newy < 0) {newy = this.state.fieldY - 1};
                 } else {
-                    // this.state.audioPunch.play();
                     this.playSound(this.state.audioPunch);
                     this.finishTheGame();
                 }
         } 
         headNew = `${newy}-${newx}`;
         if (snake.includes(headNew)) {
-            // this.state.audioPunch.play();
             this.playSound(this.state.audioPunch);
             this.finishTheGame();
-            // console.log('snake')
         }
         let arr = snake;
         arr.push(headNew);
         this.setState({snake: arr})
         if (this.fieldNumber(headNew) === 3) {
             this.boom(headNew);
-            // setTimeout(this.finishTheGame(), 500);
             this.finishTheGame();
         }
-        // if (this.fieldNumber(headNew) in this.state.foodList) {
         if (this.state.foodList.includes(this.fieldNumber(headNew))) {
-            // this.createFood(this.state.foodList[Math.floor(Math.random() * this.state.foodList.length)]);
-            // this.state.audioEat.play()
             this.playSound(this.state.audioEat);
             setTimeout(this.createFood, this.state.foodTimer);
-            // this.createFood();
             if (this.state.gameIsRunning) {
                 this.setState({score: this.state.score + 1});
             }
@@ -412,11 +378,8 @@ export default class GameField extends React.Component {
         let y = +boom.split('-')[0];
         arr[y][x] = 5;
         this.setState({fieldXxY: arr});
-        // console.log(this.state.fieldXxY)
         let i = 1;
         
-        // useSound(explosion);
-        // this.state.audioExp.play()
         this.playSound(this.state.audioExp);
 
         let arr2 = this.state.fieldXxY;
@@ -425,7 +388,6 @@ export default class GameField extends React.Component {
             var food_y = Math.floor(Math.random() * this.state.fieldY);
             if (arr2[food_y][food_x] === 0) {
                 arr2[food_y][food_x] = 4;
-                // break;
             }
             i++;
         }
@@ -444,8 +406,6 @@ export default class GameField extends React.Component {
     }
 
     finishTheGame = () => {
-        // this.render()
-
         let arr = this.state.fieldXxY.map((item) => {
             const i = item;
             return (
@@ -464,22 +424,14 @@ export default class GameField extends React.Component {
         clearInterval(this.state.snakeTimer);
         clearInterval(this.state.obstacleTimer);
         clearInterval(this.state.noObstacleTimer);
-        // alert('Вы проиграли! Ваш результат: ' + this.state.snake.length);
-        // document.getElementsByClassName("game-table")[0].style.backgroundImage = 'url(\'over.jpg\')';
-        // document.getElementsByClassName("game-table")[0].style.backgroundSize = "cover";
     }
 
     fieldSizeChanged = (e) => {
-        
         this.setState({fieldX: +e.target.value.split('x')[0]});
         this.setState({fieldY: +e.target.value.split('x')[1]});
-        // this.gameTableInit();
-        // this.forceUpdate();
-        // this.render();
     }
 
     soundCheckHandler = (e) => {
-        // this.state.audioBut.play()
         if (!this.state.isSound) {
             this.playSound(this.state.audioBut);
         }
@@ -487,16 +439,13 @@ export default class GameField extends React.Component {
     }
 
     wallsCheckHandler = (e) => {
-        // this.state.audioBut.play()
         this.playSound(this.state.audioBut);
         document.getElementById("game-table").style.border = e ?'5px solid red' : 'none';
         this.setState({noWalls: !e});
     }
 
     obstaclesCheckHandler = (e) => {
-        // this.state.audioBut.play()
         this.playSound(this.state.audioBut);
-        // e.preventDefault();
         this.setState({obstacles: e})
         if (!e) {
             this.setState({obstaclesDisap: e})
@@ -504,9 +453,7 @@ export default class GameField extends React.Component {
     }
 
     obstaclesDisapCheckHandler = (e) => {
-        // this.state.audioBut.play()
         this.playSound(this.state.audioBut);
-        // e.preventDefault();
         this.setState({obstaclesDisap: e})
     }
 
@@ -515,7 +462,6 @@ export default class GameField extends React.Component {
     }
 
     setRadioValue = (e) => {
-        // this.state.audioBut.play()
         this.playSound(this.state.audioBut);
         this.setState({radioValue: e})
         console.log(e);
@@ -524,29 +470,57 @@ export default class GameField extends React.Component {
     }
 
     setSnakeSpeed = (e) => {
-        // this.state.audioBut.play()
         let s = this.state.snakeSpeedInit - (e - 50) * this.state.snakeSpeedInit / 100;
         
         this.setState({snakeSpeed: s})
         this.setState({speedSetting: e});
-        // console.log(this.state.snakeSpeed)
     }
 
     settingsOpen = () => {
-        // this.state.audioBut.play()
         this.playSound(this.state.audioBut);
         this.setState({settingsOpen: !this.state.settingsOpen})
     }
 
     pauseGame = () => {
-        this.setState({isPaused: !this.state.isPaused})
+        // this.setState({isPaused: !this.state.isPaused})
+        // this.setState((prevState) => ({ isPaused: !prevState.isPaused }));
         
+        // let forceUpd = () => {
+        //     this.setState((prevState) => {
+        //         return {
+        //             isPaused: !prevState.isPaused
+        //         };
+        //     }
+        //     // , () => {
+        //     //     this.props.updateItem(this.state)
+        //     // }
+        //     );
+        // }
+
+        // forceUpd();
+
         if(this.state.isPaused) {
             clearInterval(this.state.snakeTimer);
             clearInterval(this.state.obstacleTimer);
             clearInterval(this.state.noObstacleTimer);
             console.log('paused')
-            // this.setState({gameIsRunning: false});
+
+            // this.setState((prevState) => {
+            //     return {
+            //         clearInterval(prevState.snakeTimer);
+            //         clearInterval(prevState.obstacleTimer);
+            //         clearInterval(prevState.noObstacleTimer);
+            //     },
+            //     this.props.updateItem(this.state);
+            // })
+
+            
+            // checkPencil(){
+            //     this.setState((prevState) => {return {pencil: !prevState.pencil};},
+            //                 () => {this.props.updateItem(this.state)}
+            //     );
+            // }
+
         } else {
             this.setState({snakeTimer: setInterval(this.move, this.state.snakeSpeed)});        
             if (this.state.obstacles) {
@@ -556,13 +530,13 @@ export default class GameField extends React.Component {
                 this.setState({noObstacleTimer: setInterval(this.deleteObstacle, this.state.noObstacleInt)});
             }
         }
+
+        this.setState((prevState) => ({ isPaused: !prevState.isPaused }));
     }
 
     startAutoplay = () => {
-        // if (this.state.autoPlayIsRunning) {
             this.setState({autoPlayIsRunning: true});
             this.startGame();
-        // }
     }
 
     startGameClick = () => {
@@ -572,7 +546,6 @@ export default class GameField extends React.Component {
     }
 
     render() {
-
         const radios = [
             { name: '10x10', value: '10x10' },
             { name: '15x15', value: '15x15' },
@@ -580,8 +553,6 @@ export default class GameField extends React.Component {
           ];
 
         return <div className='game'>
-
-            {/* <FullScreen handle={this.state.handle}> */}
             <div className='snake-field'>
                 <table className={`game-table${this.state.gameIsOver ? '-over' : ''}`} id={`game-table`}>
                     <tbody>
@@ -607,19 +578,16 @@ export default class GameField extends React.Component {
                     </tbody>
                 </table>
             </div>
-            {/* </FullScreen> */}
-
-            {/* <button onClick={this.state.handle.enter}>Fullscreen</button> */}
-            {/* <div> */}
-                <span>Hi-Score: {this.state.hiScore}</span>
+            <div className={this.state.FSmodeOn ? 'scores-white' : 'scores-black'}>
+                <span>Hi-Score: {this.state.hiScore}</span><br></br>
                 <span>Score: {this.state.score}</span>
-            {/* </div> */}
+            </div> 
             <div className="game-btns">
                 <Button variant="dark" onClick={this.startGameClick} className="mb-2">New Game</Button>
-                {/* <Button variant="dark" onClick={this.pauseGame} className="mb-2">{this.state.isPaused ? 'Resume' : 'Pause'}</Button> */}
+                <Button variant="dark" onClick={this.pauseGame} className="mb-2">{!this.state.isPaused ? 'Resume' : 'Pause'}</Button>
                 {/* <Button variant="dark" onClick={this.startAutoplay} className="mb-2">Autoplay</Button>
                 (e) => this.obstaclesDisapCheckHandler(e.currentTarget.checked) */}
-                <Button variant="dark" onClick={() => this.startAutoplay()} className="mb-2">Autoplay</Button>
+                {/* <Button variant="dark" onClick={() => this.startAutoplay()} className="mb-2">Autoplay</Button> */}
             </div>
 
             <Button
@@ -736,7 +704,6 @@ export default class GameField extends React.Component {
 // animations
 // every 10 points
 
-// music
 // досрочное прервыанаие звука
 
 // pause button
@@ -749,9 +716,9 @@ export default class GameField extends React.Component {
 
 // backend
 
-//fullscreen text color
-//fullscreen button
 //snake redraw after dying
+
 //autoplay after dying
 //autoplay on timer in the beginnig
-//start game doesnt work
+//autoplay sign
+//block user keys when autoplay

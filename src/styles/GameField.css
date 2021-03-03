@@ -8,71 +8,31 @@
 }
 
 .snake-field {
-    /* content: 'Game over!';
-    z-index: 2; */
     background-image: url('over.jpg');
     background-size: cover;
-    
 }
 
 .game-table {
     border-collapse: collapse;
-    /* background-color: #3e3e3e; */
     background-color: #fff;
-    /* border: 5px solid red; */
     margin: 10px;
 }
 
-/* .game-table-walls {
-    border-collapse: collapse;
-    /* background-color: #3e3e3e; */
-    /* background-color: #fff;
-    border: 5px solid red;
-    margin: 10px;
-} */
-
 .game-table-over {
     border-collapse: collapse;
-    /* background-color: #3e3e3e; */
     background-color: #fff;
-    /* border: 5px solid red; */
     margin: 10px;
-    /* display: none; */
     opacity: 0;
     transition: opacity 2s;
     transition-delay: 2s;
-
-    /* background-image: url('over.jpg');
-    background-size: cover; */
-    /* transition: background-image 0.2s ease; */
-    /* animation-name: blinker;
-    animation-iteration-count: infinite;
-    animation-timing-function: cubic-bezier(1.0,0,0,1.0);
-    animation-duration: 1s;
-    -webkit-animation-name: blinker;
-    -webkit-animation-iteration-count: infinite;
-    -webkit-animation-timing-function: cubic-bezier(1.0,0,0,1.0);
-    -webkit-animation-duration: 1s; */
   }
-   
-  /* @keyframes blinker {
-    from { opacity: 1.0; }
-    to { opacity: 0.0; }
-  } */
-   
-  /* @-webkit-keyframes blinker {
-    from { opacity: 1.0; }
-    to { opacity: 0.0; }
-  } */
 
 .game-table-over > tbody > tr > td {
     border: none;
-    /* background-color: white; */
 }
 
 .snake-field {
     display: inline-block;
-    /* border: 2px solid red; */
     box-sizing: border-box;
     display: flex;
     justify-content: center;
@@ -82,19 +42,10 @@
 td.game-table-cell {
     width: 25px;
     height: 25px;
-    /* border: 1px dotted #eee; */
     border: 1px dotted black;
     box-sizing: border-box;
     position: relative;
 }
-
-/* button {
-    width: 200px;
-} */
-
-/* .game-table-cell-status-0 {
-
-} */
 
 .scores-white {
     color: white;
@@ -113,7 +64,6 @@ td.game-table-cell {
 }
 
 .game-table-cell-status-1 { 
-    /* background-color: black; */
     background-image: url('snake.jpg');
     content: ':)'
 }
@@ -128,10 +78,6 @@ td.game-table-cell {
 .game-table-cell-status-17:after,
 .game-table-cell-status-18:after,
 .game-table-cell-status-19:after {
-    /* background-color: green; */
-    /* content: '\1F354'; */
-    /* content: attr(css-data); */
-    /* content: var(--css-data); */
     font-size: 24px;
     position: absolute;
     left: 0px;
@@ -178,11 +124,8 @@ td.game-table-cell {
     content: '\1F355';
 }
 
-.game-table-cell-status-3:after{
-    /* content: 'X';
-    background-color: red; */
+.game-table-cell-status-3:after {
     content: '\1F4A3';
-    /* content: attr(css-data); */
     font-size: 24px;
     position: absolute;
     left: 0px;
@@ -212,7 +155,3 @@ td.game-table-cell {
     justify-content: space-around;
     margin-top: 10px;
 }
-
-/* .game-btns .btn {
-    width: 100px;
-} */

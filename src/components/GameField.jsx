@@ -1,6 +1,6 @@
 import React from 'react';
 
-import './GameField.css';
+import '../styles/GameField.css';
 
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
@@ -47,6 +47,7 @@ export default class GameField extends React.Component {
             audioBomb: null,
             audioFood: null,
             audioStart: null,
+            audioLose: null,
 
             speedSetting: 50,
             isPaused: true,
@@ -76,22 +77,20 @@ export default class GameField extends React.Component {
         this.setState({audioPunch: document.getElementsByClassName("audio-punch")[0]});
         this.setState({audioBomb: document.getElementsByClassName("audio-bomb")[0]});
         this.setState({audioFood: document.getElementsByClassName("audio-food")[0]});
+        this.setState({audioLose: document.getElementsByClassName("audio-lose")[0]});
 
         document.getElementById("game-table").style.border = this.state.noWalls ? 'none' : '5px solid red';
-
-        // setTimeout(() => {
-        //     this.setState({autoPlayIsRunning: this.setState.gameIsRunning ? false : true});
-        //     this.startGame();
-        // }, 
-        // this.state.autoPlayStartInt);
+        //autoplaystart
+        // setTimeout(
+        //     () => {
+        //         this.startGame();
+        //         this.setState({autoplayTimer: setInterval(this.autoplay, this.state.autoplayInt)});
+        //     }
+        //     , this.state.autoPlayStartInt);
     }
 
     goFullscreen = () => {
-        // if (!this.state.FSmodeOn) {
-            this.props.fullscreen();
-        //     this.setState((prevState) => ({ FSmodeOn: !prevState.FSmodeOn }));
-        // }
-        
+        this.props.fullscreen();
     }
 
     changeDirection = (e) => {
@@ -124,15 +123,6 @@ export default class GameField extends React.Component {
                 break;
         }
         this.setState({direction: direction});
-
-        // let c = () => {
-            // if (e.keyCode === 27 && this.state.FSmodeOn) {
-            //     console.log('esc')
-            //     this.setState({ FSmodeOn: !this.state.FSmodeOn });
-            // }
-        // }
-
-        // c();
     }
 
     gameTableInit = () => {
@@ -187,12 +177,15 @@ export default class GameField extends React.Component {
         if (!this.state.autoPlayIsRunning) {
             this.playSound(this.state.audioBut);
             this.playSound(this.state.audioStart);
-            this.setState({settingsOpen: false});
+
             this.finishTheGame();
+
+            this.setState({settingsOpen: false});
             this.setState({gameIsOver: false});
             this.setState({score: 0});
             this.setState({hiScore: this.state.hiScore < this.state.score ? this.state.score : this.state.hiScore})
             this.setState({gameIsRunning: true});
+            this.setState((prevState) => ({ isPaused: true }));
         }
         
         this.gameTableInit();
@@ -345,12 +338,14 @@ export default class GameField extends React.Component {
                 } else {
                     this.playSound(this.state.audioPunch);
                     this.finishTheGame();
+                    setTimeout(this.finAudio, 2000);
                 }
         } 
         headNew = `${newy}-${newx}`;
         if (snake.includes(headNew)) {
             this.playSound(this.state.audioPunch);
             this.finishTheGame();
+            setTimeout(this.finAudio, 2000);
         }
         let arr = snake;
         arr.push(headNew);
@@ -358,6 +353,7 @@ export default class GameField extends React.Component {
         if (this.fieldNumber(headNew) === 3) {
             this.boom(headNew);
             this.finishTheGame();
+            setTimeout(this.finAudio, 2000);
         }
         if (this.state.foodList.includes(this.fieldNumber(headNew))) {
             this.playSound(this.state.audioEat);
@@ -426,6 +422,10 @@ export default class GameField extends React.Component {
         clearInterval(this.state.noObstacleTimer);
     }
 
+    finAudio = () => {
+        this.playSound(this.state.audioLose);
+    }
+
     fieldSizeChanged = (e) => {
         this.setState({fieldX: +e.target.value.split('x')[0]});
         this.setState({fieldY: +e.target.value.split('x')[1]});
@@ -482,44 +482,12 @@ export default class GameField extends React.Component {
     }
 
     pauseGame = () => {
-        // this.setState({isPaused: !this.state.isPaused})
-        // this.setState((prevState) => ({ isPaused: !prevState.isPaused }));
-        
-        // let forceUpd = () => {
-        //     this.setState((prevState) => {
-        //         return {
-        //             isPaused: !prevState.isPaused
-        //         };
-        //     }
-        //     // , () => {
-        //     //     this.props.updateItem(this.state)
-        //     // }
-        //     );
-        // }
-
-        // forceUpd();
-
+        this.playSound(this.state.audioBut);
         if(this.state.isPaused) {
             clearInterval(this.state.snakeTimer);
             clearInterval(this.state.obstacleTimer);
             clearInterval(this.state.noObstacleTimer);
             console.log('paused')
-
-            // this.setState((prevState) => {
-            //     return {
-            //         clearInterval(prevState.snakeTimer);
-            //         clearInterval(prevState.obstacleTimer);
-            //         clearInterval(prevState.noObstacleTimer);
-            //     },
-            //     this.props.updateItem(this.state);
-            // })
-
-            
-            // checkPencil(){
-            //     this.setState((prevState) => {return {pencil: !prevState.pencil};},
-            //                 () => {this.props.updateItem(this.state)}
-            //     );
-            // }
 
         } else {
             this.setState({snakeTimer: setInterval(this.move, this.state.snakeSpeed)});        
@@ -534,13 +502,16 @@ export default class GameField extends React.Component {
         this.setState((prevState) => ({ isPaused: !prevState.isPaused }));
     }
 
-    startAutoplay = () => {
-            this.setState({autoPlayIsRunning: true});
-            this.startGame();
-    }
+    // startAutoplay = () => {
+    //         this.setState({autoPlayIsRunning: true});
+    //         this.startGame();
+    // }
 
     startGameClick = () => {
-        this.setState({autoPlayIsRunning: false});
+        // // this.setState({autoPlayIsRunning: false});
+        // clearInterval(this.state.autoplayTimer);
+        // this.setState((prevState) => ({ autoPlayIsRunning: !prevState.autoPlayIsRunning }));
+        
         this.setState({gameIsRunning: true});
         this.startGame();
     }
@@ -584,10 +555,7 @@ export default class GameField extends React.Component {
             </div> 
             <div className="game-btns">
                 <Button variant="dark" onClick={this.startGameClick} className="mb-2">New Game</Button>
-                <Button variant="dark" onClick={this.pauseGame} className="mb-2">{!this.state.isPaused ? 'Resume' : 'Pause'}</Button>
-                {/* <Button variant="dark" onClick={this.startAutoplay} className="mb-2">Autoplay</Button>
-                (e) => this.obstaclesDisapCheckHandler(e.currentTarget.checked) */}
-                {/* <Button variant="dark" onClick={() => this.startAutoplay()} className="mb-2">Autoplay</Button> */}
+                <Button variant="dark" onClick={this.pauseGame} className="mb-2" disabled={!this.state.gameIsRunning}>{!this.state.isPaused ? 'Resume' : 'Pause'}</Button>
             </div>
 
             <Button
@@ -612,7 +580,6 @@ export default class GameField extends React.Component {
                             value={radio.value}
                             checked={this.state.radioValue === radio.value}
                             onChange={(e) => this.setRadioValue(e.currentTarget.value)}
-                            // disabled
                         >
                             {radio.name}
                         </ToggleButton>
@@ -694,31 +661,11 @@ export default class GameField extends React.Component {
                     <audio className="audio-food">
                         <source src="food.mp3"></source>
                     </audio>
-
+                    <audio className="audio-lose">
+                        <source src="lose.wav"></source>
+                    </audio>
                 </div>
             </Collapse>
         </div>
     }
 }
-
-// animations
-// every 10 points
-
-// досрочное прервыанаие звука
-
-// pause button
-
-// music rate
-
-// records table - 10
-
-// game saving while reload
-
-// backend
-
-//snake redraw after dying
-
-//autoplay after dying
-//autoplay on timer in the beginnig
-//autoplay sign
-//block user keys when autoplay

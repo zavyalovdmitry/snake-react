@@ -12,7 +12,9 @@
     "react-bootstrap-range-slider": "^2.0.2",
     "react-dom": "^17.0.1",
     "react-full-screen": "^1.0.1",
+    "react-redux": "^7.2.2",
     "react-scripts": "4.0.3",
+    "redux": "^4.0.5",
     "use-sound": "^2.0.1",
     "web-vitals": "^1.1.0"
   },
@@ -49,5 +51,6 @@
     "file-loader": "^6.2.0",
     "style-loader": "^2.0.0",
     "webpack-cli": "^4.5.0"
-  }
+  },
+  "homepage": "."
 }

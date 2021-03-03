@@ -1,6 +1,6 @@
 import React from 'react';
 
-import './Header.css';
+import '../styles/Header.css';
 
 export default class Header extends React.Component {
     render() {
@@ -11,6 +11,3 @@ export default class Header extends React.Component {
         </div>
     }
 }
-
-// logo
-// title

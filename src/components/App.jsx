@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import { FullScreen, useFullScreenHandle } from "react-full-screen";
 
-import './App.css';
+import '../styles/App.css';
 
 import Header from './Header.jsx';
 import GameField from './GameField.jsx';

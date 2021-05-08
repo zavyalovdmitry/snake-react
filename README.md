@@ -1,2 +1,2 @@
-# react-game
+# snake-react
 react.js
